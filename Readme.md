@@ -13,6 +13,7 @@ The project involves the following key steps:
 5. **Airflow Automation**: The entire workflow is managed and scheduled using Apache Airflow.
 
 ## Project Structure
+```bash
 ├── dags/
 │   └── web_scraping_pipeline.py       # Airflow DAG for the entire workflow
 ├── scrapy_project/
@@ -26,6 +27,7 @@ The project involves the following key steps:
 │   ├── vectorize_data.py              # Script to vectorize data and update the vector database
 │   └── make_vector_db_available.py    # Script to make the vector database available to the LLM
 └── README.md                          # Project documentation
+```
 ## Prerequisites
 
 Ensure you have the following installed:
