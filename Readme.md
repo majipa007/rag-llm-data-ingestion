@@ -4,6 +4,8 @@ This project automates the process of web scraping, data processing, and vector 
 
 ## Project Overview
 
+![](images/workflow.png)
+
 The project involves the following key steps:
 
 1. **Web Scraping**: Data is scraped from a college website using Scrapy.
