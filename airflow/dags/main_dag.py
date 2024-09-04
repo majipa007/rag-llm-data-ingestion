@@ -1,87 +1,74 @@
 from airflow import DAG
-
-from airflow.operators.python_operator import PythonOperator
-
+from airflow.operators.python import PythonOperator
 from airflow.utils.dates import days_ago
+from datetime import timedelta
+from airflow.models import Variable
+from airflow import Dataset
+from pathlib import Path
+from functions import scrape_data, load_json_to_faiss
 
-from datetime import datetime
-
-import requests
-
-
-
-def print_welcome():
-
-    print('Welcome to Airflow!')
-
-
-
-def print_date():
-
-    print('Today is {}'.format(datetime.today().date()))
+url = Variable.get("url")
+scrapped_data = Variable.get("scrapped_data")
+vector_data = Variable.get("vector_database")
+json_dataset = Dataset(str(Path(scrapped_data)))
 
 
 
-def print_random_quote():
+# Default arguments for the DAG
+default_args = {
+    'owner': 'Sulav Kumar Shrestha',
+    'depends_on_past': False,
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 1,
+    'retry_delay': timedelta(minutes=5),
+}
 
-    response = requests.get('https://api.quotable.io/random')
+# Define the DAG
+with DAG(
+    'scraping_pipeline_dag',
+    default_args=default_args,
+    description='A DAG for web scraping, processing, and vector database management',
+    schedule_interval=timedelta(days=1),  # Runs daily; adjust as needed
+    start_date=days_ago(1),
+    catchup=False,
+) as dag:
+    
+    def start_task():
+        print("Starting the DAG")
 
-    quote = response.json()['content']
+    start = PythonOperator(
+        task_id='start_task',
+        python_callable=start_task,
+    )
 
-    print('Quote of the day: "{}"'.format(quote))
-
-
-
-dag = DAG(
-
-    'main',
-
-    default_args={'start_date': days_ago(1)},
-
-    schedule_interval='0 23 * * *',
-
-    catchup=False
-
-)
-
-
-
-print_welcome_task = PythonOperator(
-
-    task_id='print_welcome',
-
-    python_callable=print_welcome,
-
-    dag=dag
-
-)
-
+    # Define a wrapper function for the PythonOperator
+    def scrape_task_wrapper():
+        # Call the scrape_titles function with the URL and file path
+        scrape_data(url, scrapped_data)
 
 
-print_date_task = PythonOperator(
+    scrape = PythonOperator(
+        task_id='scrape_task',
+        python_callable=scrape_task_wrapper,
+    )
 
-    task_id='print_date',
+    def vector_db_task_wrapper():
+        load_json_to_faiss(scrapped_data, vector_data)
 
-    python_callable=print_date,
+    vector_db = PythonOperator(
+        task_id='vector_db_task',
+        python_callable = vector_db_task_wrapper,
+    )
 
-    dag=dag
+    # Example of another task
+    def finish_task():
+        print("Finishing the DAG")
 
-)
+    finish = PythonOperator(
+        task_id='finish_task',
+        python_callable=finish_task,
+    )
 
-
-
-print_random_quote = PythonOperator(
-
-    task_id='print_random_quote',
-
-    python_callable=print_random_quote,
-
-    dag=dag
-
-)
-
-
-
-# Set the dependencies between the tasks
-
-print_welcome_task >> print_date_task >> print_random_quote
+    # Task dependencies
+    start >> scrape >> vector_db >> finish
