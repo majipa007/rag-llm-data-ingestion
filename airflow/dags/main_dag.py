@@ -5,7 +5,8 @@ from datetime import timedelta
 from airflow.models import Variable
 from airflow import Dataset
 from pathlib import Path
-from functions import scrape_data, load_json_to_faiss
+from functions import scrape_data, vectorize_and_store_json
+import logging
 
 url = Variable.get("url")
 scrapped_data = Variable.get("scrapped_data")
@@ -54,7 +55,11 @@ with DAG(
     )
 
     def vector_db_task_wrapper():
-        load_json_to_faiss(scrapped_data, vector_data)
+        try:
+            vectorize_and_store_json(scrapped_data, vector_data)
+        except Exception as e:
+            logging.error(f"Error in vector_db_task: {e}")
+            raise
 
     vector_db = PythonOperator(
         task_id='vector_db_task',

@@ -11,4 +11,5 @@ USER airflow
 
 RUN pip install requests 
 RUN pip install beautifulsoup4
-RUN pip install faiss-cpu 
+RUN pip install faiss-cpu
+RUN pip install scikit-learn 
