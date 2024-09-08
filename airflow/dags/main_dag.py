@@ -3,16 +3,14 @@ from airflow.operators.python import PythonOperator
 from airflow.utils.dates import days_ago
 from datetime import timedelta
 from airflow.models import Variable
-from airflow import Dataset
 from pathlib import Path
-from functions import scrape_data, load_json_to_faiss
+from functions.scraper import scrape_data
+from functions.vectorizer import load_json_to_faiss
 
+# Define paths and URLs using Airflow Variables
 url = Variable.get("url")
-scrapped_data = Variable.get("scrapped_data")
-vector_data = Variable.get("vector_database")
-json_dataset = Dataset(str(Path(scrapped_data)))
-
-
+scrapped_data_path = Path(Variable.get("scrapped_data_folder"))
+vector_data_path = Path(Variable.get("vector_database"))
 
 # Default arguments for the DAG
 default_args = {
@@ -33,7 +31,7 @@ with DAG(
     start_date=days_ago(1),
     catchup=False,
 ) as dag:
-    
+
     def start_task():
         print("Starting the DAG")
 
@@ -42,11 +40,8 @@ with DAG(
         python_callable=start_task,
     )
 
-    # Define a wrapper function for the PythonOperator
     def scrape_task_wrapper():
-        # Call the scrape_titles function with the URL and file path
-        scrape_data(url, scrapped_data)
-
+        scrape_data(url, scrapped_data_path)
 
     scrape = PythonOperator(
         task_id='scrape_task',
@@ -54,14 +49,13 @@ with DAG(
     )
 
     def vector_db_task_wrapper():
-        load_json_to_faiss(scrapped_data, vector_data)
+        load_json_to_faiss(scrapped_data_path, vector_data_path)
 
     vector_db = PythonOperator(
         task_id='vector_db_task',
-        python_callable = vector_db_task_wrapper,
+        python_callable=vector_db_task_wrapper,
     )
 
-    # Example of another task
     def finish_task():
         print("Finishing the DAG")
 
@@ -70,8 +64,5 @@ with DAG(
         python_callable=finish_task,
     )
 
-    # Task dependencie
+    # Task dependencies
     start >> scrape >> vector_db >> finish
-
-    #this is a comment by nisha
-    print(" second update by nisha")
