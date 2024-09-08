@@ -4,6 +4,7 @@ from airflow.utils.dates import days_ago
 from datetime import timedelta
 from airflow.models import Variable
 from pathlib import Path
+from airflow import Dataset
 from functions import scrape_data,load_json_to_faiss
 
 
@@ -11,6 +12,7 @@ from functions import scrape_data,load_json_to_faiss
 url = Variable.get("url")
 scrapped_data_path = Path(Variable.get("scrapped_data_folder"))
 vector_data_path = Path(Variable.get("vector_database"))
+json_dataset = Dataset(str(Path(scrapped_data_path)))  
 
 # Default arguments for the DAG
 default_args = {
