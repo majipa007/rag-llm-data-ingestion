@@ -4,8 +4,8 @@ from airflow.utils.dates import days_ago
 from datetime import timedelta
 from airflow.models import Variable
 from pathlib import Path
-from functions.scraper import scrape_data
-from functions.vectorizer import load_json_to_faiss
+from functions import scrape_data,load_json_to_faiss
+
 
 # Define paths and URLs using Airflow Variables
 url = Variable.get("url")
