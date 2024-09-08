@@ -43,4 +43,3 @@ def scrape_data(url, output_file):
     with open(output_file, 'w') as json_file:
         json.dump(all_texts, json_file, indent=4)
     print(f"Scraping completed and data saved to {output_file}")
-
