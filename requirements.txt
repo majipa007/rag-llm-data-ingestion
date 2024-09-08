@@ -1,4 +1,6 @@
-requests 
-beautifulsoup4 
-numpy 
-fiass
+scrapy
+faiss-cpu
+numpy
+apache-airflow
+
+

@@ -14,19 +14,3 @@ The project involves the following key steps:
 4. **Vector Database Management**: The vector database is updated and made available for the LLM to use as context.
 5. **Airflow Automation**: The entire workflow is managed and scheduled using Apache Airflow.
 
-## Project Structure
-```bash
-├── dags/
-│   └── web_scraping_pipeline.py       # Airflow DAG for the entire workflow
-├── scrapy_project/
-│   ├── spiders/
-│   │   └── college_spider.py          # Scrapy spider to scrape the college website
-│   └── scrapy.cfg                     # Scrapy configuration file
-├── vector_db/
-│   └── vector_database.faiss          # Vector database file
-├── scripts/
-│   ├── detect_changes.py              # Script to detect changes in scraped data
-│   ├── vectorize_data.py              # Script to vectorize data and update the vector database
-│   └── make_vector_db_available.py    # Script to make the vector database available to the LLM
-└── README.md                          # Project documentation
-```

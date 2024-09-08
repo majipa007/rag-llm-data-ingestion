@@ -1,16 +1,22 @@
+version: "3"
+
 services:
-  data-ingestion:
-    image: data-ingestion:latest
+  airflow:
+    build: .
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=sqlite:////airflow/airflow.db
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
     volumes:
-      - ./airflow:/opt/airflow
+      - ./dags:/usr/local/airflow/dags
+      - ./plugins:/usr/local/airflow/plugins
     ports:
       - "8080:8080"
-    user: "${UID}:${GID}"
-    environment:
-      - AIRFLOW_UID=${UID}
-    command: >
-      bash -c "
-      mkdir -p /opt/airflow/logs /opt/airflow/dags /opt/airflow/scraper /opt/airflow/plugins /opt/airflow/vector_db /opt/airflow/scripts &&
-      chmod -R 777 /opt/airflow &&
-      airflow standalone
-      "
+    command: "airflow webserver"
+
+  scheduler:
+    build: .
+    volumes:
+      - ./dags:/usr/local/airflow/dags
+      - ./plugins:/usr/local/airflow/plugins
+    command: "airflow scheduler"

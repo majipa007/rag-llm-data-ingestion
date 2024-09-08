@@ -1,14 +1,14 @@
-FROM apache/airflow:latest
+FROM python:3.9-slim
 
-USER root
+# Set up working directory
+WORKDIR /app
 
-RUN apt-get update && \
-    apt-get -y install git && \
-    apt-get clean
+# Copy requirements and install
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy application code
+COPY . .
 
-USER airflow
-
-RUN pip install requests 
-RUN pip install beautifulsoup4
-RUN pip install faiss-cpu 
+# Entry point
+CMD ["airflow", "webserver"]

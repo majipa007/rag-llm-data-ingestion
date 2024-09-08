@@ -1,4 +1,13 @@
-standalone_admin_password.txt
-airflow/logs
-./airflow/logs/
-__pycache__
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+
+# Ignore environment folders
+env/
+venv/
+airflow-env/
+
+# Ignore data folders
+scraped_data/
+logs/
+faiss_index/
