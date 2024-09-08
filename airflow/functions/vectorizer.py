@@ -1,29 +1,47 @@
 import json
 import numpy as np
+from sentence_transformers import SentenceTransformer
 import faiss
+from pathlib import Path
+import logging
 
-def load_json_to_faiss(json_file, index_file):
-    # Load JSON data
-    with open(json_file, 'r') as f:
-        data = json.load(f)
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-    # Extract vectors and ids
-    vectors = []
-    ids = []
-    for item in data:
-        vectors.append(np.array(item['vector']))
-        ids.append(item['id'])
+# Load pre-trained SentenceTransformer model
+model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
-    # Convert to numpy array
-    vectors = np.array(vectors, dtype=np.float32)
+def load_json_to_faiss(json_file, faiss_index_file):
+    try:
+        # Load the scraped data from the JSON file
+        with open(json_file, 'r') as f:
+            data = json.load(f)
+    except (IOError, json.JSONDecodeError) as e:
+        logger.error(f"Error loading JSON file: {e}")
+        return
 
-    # Create Faiss index
-    index = faiss.IndexFlatL2(len(vectors[0]))
+    # Convert the texts into vectors using the pre-trained SentenceTransformer model
+    texts = [entry['text'] for entry in data]
+    try:
+        vectors = model.encode(texts)
+    except Exception as e:
+        logger.error(f"Error encoding texts to vectors: {e}")
+        return
 
-    # Add vectors to the index
-    index.add(vectors)
+    vectors_np = np.array(vectors).astype('float32')
+    dim = vectors_np.shape[1]
 
-    # Save index to file
-    faiss.write_index(index, index_file)
+    # Create FAISS index
+    index = faiss.IndexFlatL2(dim)
+    index.add(vectors_np)
 
-    print( index, ids)
+    try:
+        # Save FAISS index to file
+        faiss_index_file.parent.mkdir(parents=True, exist_ok=True)  # Create folder if doesn't exist
+        faiss.write_index(index, str(faiss_index_file))
+    except IOError as e:
+        logger.error(f"Error saving FAISS index to file: {e}")
+        return
+
+    logger.info(f"FAISS index saved to {faiss_index_file}")

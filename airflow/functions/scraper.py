@@ -1,29 +1,46 @@
 import json
 import requests
 from bs4 import BeautifulSoup
+from urllib.parse import urljoin, urlparse
+from pathlib import Path
+import time
 
+def scrape_data(url, output_file):
+    visited = set()
+    all_texts = []
 
-def scrape_data(url, scrapped_data):
-    # Send a GET request to the URL
-    response = requests.get(url)
-    
-    # Check if the request was successful (status code 200)
-    if response.status_code == 200:
-        # Parse the HTML content with BeautifulSoup
+    def scrape_page(url):
+        if url in visited:
+            return
+        visited.add(url)
+
+        try:
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+        except requests.RequestException as e:
+            print(f"Request failed: {e}")
+            return
+
         soup = BeautifulSoup(response.content, 'html.parser')
+        text_elements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'span', 'div']
+        text = ' '.join([element.get_text(strip=True) for tag in text_elements for element in soup.find_all(tag)])
         
-        # Find all the article titles (assuming they are in <h2> tags)
-        titles = soup.find_all('h1')
-        data = []
-        for i, title in enumerate(titles, start=1):
-            x = f"{i}. {title.get_text().strip()}"
-            data.append(x)
+        if text:
+            all_texts.append({"url": url, "text": text})
 
+        links = soup.find_all('a', href=True)
+        for link in links:
+            href = link['href']
+            full_url = urljoin(url, href)
+            if urlparse(full_url).netloc == urlparse(url).netloc:
+                scrape_page(full_url)
+            time.sleep(1)  # Add a delay to be polite
 
-        # Save the data as a JSON file
-        with open(scrapped_data, 'w') as json_file:
-            json.dump(data, json_file)
+    scrape_page(url)
 
-        print(f"Data saved to {scrapped_data}")
-    else:
-        print(f"Failed to retrieve the content. Status code: {response.status_code}")
+    # Save as JSON
+    output_file.parent.mkdir(parents=True, exist_ok=True)  # Create folder if doesn't exist
+    with open(output_file, 'w') as json_file:
+        json.dump(all_texts, json_file, indent=4)
+    print(f"Scraping completed and data saved to {output_file}")
+
