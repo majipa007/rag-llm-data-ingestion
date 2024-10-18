@@ -4,9 +4,7 @@ from transformers import AutoModel, AutoTokenizer
 import numpy as np
 
 # Load the LLM model (for embeddings)
-model_name = "sentence-transformers/all-MiniLM-L6-v2"  # Use a suitable embedding model
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModel.from_pretrained(model_name)
+
 
 # Sample data to vectorize (replace with scraped data)
 texts = [
@@ -15,16 +13,22 @@ texts = [
     "This is additional content for testing FAISS vector storage."
 ]
 
-# Function to generate embeddings
-def get_embeddings(texts):
-    inputs = tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
-    with torch.no_grad():
-        outputs = model(**inputs)
-        embeddings = outputs.last_hidden_state.mean(dim=1)  # Use mean pooling
-    return embeddings
+class vectorizer:
+    def __init__(self):
+        self.model_name = "sentence-transformers/all-MiniLM-L6-v2"  # Use a suitable embedding model
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        self.model = AutoModel.from_pretrained(self.model_name)
 
+    def get_embeddings(self, texts):
+        inputs = self.tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            embeddings = outputs.last_hidden_state.mean(dim=1)  # Use mean pooling
+        return embeddings.numpy()
+
+v = vectorizer()
 # Vectorize the data
-embeddings = get_embeddings(texts).numpy()
+embeddings = v.get_embeddings(texts)
 
 # Create FAISS index
 d = embeddings.shape[1]  # Dimensionality of the embeddings
@@ -37,4 +41,9 @@ index.add(embeddings)
 faiss.write_index(index, "../vector_db/vector_database.faiss")
 
 print("Vector database saved successfully!")
+
+
+
+
+
 
