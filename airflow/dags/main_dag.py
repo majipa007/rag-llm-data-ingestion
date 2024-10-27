@@ -1,79 +1,84 @@
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.operators.python import PythonOperator, BranchPythonOperator
+from airflow.operators.dummy import DummyOperator
 from airflow.utils.dates import days_ago
-from datetime import timedelta
 from airflow.models import Variable
-from airflow import Dataset
-from pathlib import Path
-from functions import scrape_data, vectorize_and_store_json
-import logging
+from datetime import datetime, timedelta
+import os
+# importing my functions
+from scraper.scrapper import extract_medium_text
+from scripts.detect_changes import has_file_changed
+from scripts.vectorize_data import vectorize_and_save
 
+# setting file paths
 url = Variable.get("url")
-scrapped_data = Variable.get("scrapped_data")
-vector_data = Variable.get("vector_database")
-json_dataset = Dataset(str(Path(scrapped_data)))
-
-
+scrapped_data_path = "/opt/airflow/Scrapped_data/data.txt"
+vector_database_path = "../vector_db/vector_database.faiss"
+hash_storage_path  = "../Scrapped_data/last_file_hash.txt"
 
 # Default arguments for the DAG
 default_args = {
     'owner': 'Sulav Kumar Shrestha',
+    'start_date' : days_ago(1),
+    'end_date' : datetime(2024, 10, 30),
     'depends_on_past': False,
-    'email_on_failure': False,
-    'email_on_retry': False,
+    'execution_timeout' : timedelta(hours=2),
+    'email_on_failure': True,
+    'email_on_retry': True,
+    'email' : ['sulavstha007@gmail.com', '22ad057@kpriet.ac.in'],
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
 }
+# functions
+def run_scraper():
+    extract_medium_text(url, scrapped_data_path)
+
+def check_file_change():
+    if has_file_changed(scrapped_data_path, hash_storage_path):
+        return "vectorization_task"
+    else:
+        return "no_changes_flag"
+
+def run_vectorization():
+    vectorize_and_save(scrapped_data_path, vector_database_path)
+
+def start_task():
+    print("Starting the DAG")
+
+def completed_flag():
+    print("Successfully Completed")
+
 
 # Define the DAG
 with DAG(
-    'scraping_pipeline_dag',
+    'hourly_scraping_pipeline',
     default_args=default_args,
     description='A DAG for web scraping, processing, and vector database management',
-    schedule_interval=timedelta(days=1),  # Runs daily; adjust as needed
-    start_date=days_ago(1),
+    schedule_interval='@hourly', # or we can use timedelta(days=1) for one day.
     catchup=False,
 ) as dag:
-    
-    def start_task():
-        print("Starting the DAG")
 
-    start = PythonOperator(
-        task_id='start_task',
-        python_callable=start_task,
-    )
-
-    # Define a wrapper function for the PythonOperator
-    def scrape_task_wrapper():
-        # Call the scrape_titles function with the URL and file path
-        scrape_data(url, scrapped_data)
-
+    start = DummyOperator(task_id='start_task')
 
     scrape = PythonOperator(
         task_id='scrape_task',
-        python_callable=scrape_task_wrapper,
+        python_callable=run_scraper,
     )
 
-    def vector_db_task_wrapper():
-        try:
-            vectorize_and_store_json(scrapped_data, vector_data)
-        except Exception as e:
-            logging.error(f"Error in vector_db_task: {e}")
-            raise
-
-    vector_db = PythonOperator(
-        task_id='vector_db_task',
-        python_callable = vector_db_task_wrapper,
+    branch = BranchPythonOperator(
+        task_id = 'branch_task',
+        python_callable=check_file_change,
     )
 
-    # Example of another task
-    def finish_task():
-        print("Finishing the DAG")
-
-    finish = PythonOperator(
-        task_id='finish_task',
-        python_callable=finish_task,
+    vectorize = PythonOperator(
+        task_id='vectorization_task',
+        python_callable = run_vectorization,
     )
+
+    completion_flag = DummyOperator(task_id='completion_flag')
+    no_changes_flag = DummyOperator(task_id='no_changes_flag')
 
     # Task dependencie
-    start >> scrape >> vector_db >> finish
+    start >> scrape >> branch
+    branch >> vectorize >> completion_flag
+    branch >> no_changes_flag

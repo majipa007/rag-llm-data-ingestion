@@ -27,7 +27,7 @@ def extract_medium_text(url, save_path):
         return "No article content found"
 
 # Example usage
-url = "https://medium.com/@sulavstha007/quantizing-yolo-v8-models-34c39a2c10e2"  # Replace with the actual article URL
-save_path = "../Scrapped_data/data.txt"  # Define your save path
-result = extract_medium_text(url, save_path)
-print(result)
+#url = "https://medium.com/@sulavstha007/quantizing-yolo-v8-models-34c39a2c10e2"  # Replace with the actual article URL
+#save_path = "../Scrapped_data/data.txt"  # Define your save path
+#result = extract_medium_text(url, save_path)
+#print(result)
