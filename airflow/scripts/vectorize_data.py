@@ -42,6 +42,6 @@ def vectorize_and_save(input_path, output_path):
     print("Vector database saved successfully at", output_path)
 
 # Example usage
-input_path = "../Scrapped_data/data.txt"  # Path to scraped data
-output_path = "../vector_db/vector_database.faiss"  # Path to save FAISS index
+input_path = "/opt/airflow/Scrapped_data/data.txt"  # Path to scraped data
+output_path = "/opt/airflow/vector_db/vector_database.faiss"  # Path to save FAISS index
 vectorize_and_save(input_path, output_path)

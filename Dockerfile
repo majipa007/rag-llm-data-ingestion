@@ -1,15 +1,22 @@
 FROM apache/airflow:latest
 
+# Switch to root user to install system dependencies
 USER root
 
+# Update package lists and install any required system-level packages
 RUN apt-get update && \
     apt-get -y install git && \
     apt-get clean
 
-
+# Switch back to the airflow user
 USER airflow
 
-RUN pip install requests 
-RUN pip install beautifulsoup4
-RUN pip install faiss-cpu
-RUN pip install scikit-learn 
+# Install Python dependencies
+RUN pip install \
+    requests \
+    beautifulsoup4 \
+    faiss-cpu \
+    scikit-learn \
+    torch \
+    transformers \
+    numpy

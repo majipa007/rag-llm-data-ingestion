@@ -20,7 +20,7 @@ hash_storage_path  = "/opt/airflow/Scrapped_data/last_file_hash.txt"
 default_args = {
     'owner': 'Sulav Kumar Shrestha',
     'start_date' : days_ago(1),
-    'end_date' : datetime(2024, 10, 30),
+    'end_date' : datetime(2024, 11, 30),
     'depends_on_past': False,
     'execution_timeout' : timedelta(hours=2),
     'email_on_failure': True,
