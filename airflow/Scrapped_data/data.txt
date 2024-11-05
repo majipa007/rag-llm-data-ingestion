@@ -1,97 +1,31 @@
-Quantizing YOLO v8 models
+Member-only story
 
-sulav shrestha
+Reasons behind the recent changes in JetBrains products licensing model
+
+VS Code is getting popular and powerful, and Fleet is getting late!
+
+Saeed Zarinfam
 
 Follow
 
+ITNEXT
+
 --
 
-Listen
+12
 
 Share
 
-In today’s world, artificial intelligence is everywhere — from our smartphones to smart homes. But how do these powerful AI models fit into such small devices? The answer lies in a technique called model quantization.
+So far this year, JetBrains has been quite active in changing how it offers its products. It has introduced new licensing models for RustRover, Aqua, WebStorm, and Rider and made them free for non-commercial use. In this article, we will examine these drastic changes in the JetBrains product licensing model to see the possible stories behind this decision from JetBrains.
 
-Sophisticated AI on a device that fits in your pocket, operates for hours on a single charge, and doesn’t need constant internet connectivity. This is the reality that quantization is creating.
+· What's happening? ∘ Let's go back a little in history· VS Code is shining? ∘ Why is VS Code so popular?· Is it enough to make JetBrains IDEs free for non-commercial use? ∘ Is the fleet a lifeboat for JetBrains?· Final Thoughts
 
-In this blog post, we’ll explore the art and science of model quantization for vision model YOLO. We’ll discover how this technique allows complex neural networks to run efficiently on devices with limited resources, opening up new possibilities for AI in our everyday lives.
+· What's happening? ∘ Let's go back a little in history· VS Code is shining? ∘ Why is VS Code so popular?· Is it enough to make JetBrains IDEs free for non-commercial use? ∘ Is the fleet a lifeboat for JetBrains?· Final Thoughts
 
-What is Quantization?
+What's happening?
 
-Imagine you have a big box of crayons with 100 different shades of blue. Quantization is like deciding to use only 10 shades instead. You might lose some detail, but you can still create a recognizable picture while using less space in your crayon box. In the world of AI, quantization helps us shrink down complex models so they can fit and run smoothly on smaller devices, like smartphones or smart home gadgets.
+As I mentioned earlier, JetBrains, which is a leading company in developing intelligent tools for software developers and project managers, especially famous for its IDEs for different programming languages, has decided to make a few more of its IDEs free for non-commercial use.
 
-More technically model quantization is a technique used to reduce the precision of the numerical representations in a neural network. Typically, neural network models use 32-bit floating-point numbers to represent weights and activations. Quantization involves converting these high-precision numbers to lower-precision formats, such as 8-bit integers or 16-bit floating-point numbers.
+This decision seems a bit weird since JetBrains's income from its IDEs mostly comes from selling commercial licensing.
 
-Types of Quantization:
-
-Static Quantization
-
-Static quantization, also known as offline quantization, is a process where the model’s weights and activations are converted to lower precision before deployment.
-
-Static quantization is favored by CNN and object detection models because they often work with images of fixed dimensions and these models have regular, predictable computational patterns.
-
-Advantages:
-
-Disadvantages:
-
-Dynamic Quantization
-
-Dynamic quantization, also called runtime quantization, involves quantizing the model’s activations on-the-fly during inference which lets the model adapt to input data in real-time. Here typically only weights are pre-quantized, while activations are quantized dynamically.
-
-Dynamic Quantization is favored by Natural language processing tasks where input lengths can vary significantly and scenarios where input distributions may change over time.
-
-Advantages:
-
-Disadvantages:
-
-Quantizing the YOLO v8 nano model
-
-YOLOv8, an advanced object detection model in the YOLO (You Only Look Once) family, is primarily designed for real-time object detection tasks. As a Convolutional Neural Network (CNN) based model, YOLOv8 typically favors static quantization for several reasons:
-
-Converting to ONNX
-
-Preprocessing the model
-
-Pre-processing prepares a float32 model for quantization.More at: https://github.com/microsoft/onnxruntime-inference-examples/blob/main/quantization/image_classification/cpu/ReadMe.md
-
-Dynamic Quantization
-
-The “weight_type” can be assigned to QUInt8 (Quantized Unsigned 8-bit Integer — Range: 0 to 255) or QInt8 (Quantized Signed 8-bit Integer — Range: -128 to 127)
-
-Static Quantization
-
-Calibration:Calibration is the process of analyzing a model’s behavior using a representative dataset to determine optimal parameters for quantization. It involves running the floating-point model on sample inputs and collecting statistics about the distributions of weights and activations across different layers. These statistics are then used to compute the best scaling factors and zero points for converting floating-point values to lower-precision integers, ensuring the quantized model closely mimics the original model’s behavior.
-
-Quantization:
-
-As shown in the python program and image, some of the final layers need to be excluded for the prediction to take place. ‘nodes_to_exclude’ takes those node names.
-
-Looking at the program the ‘weight_type’ and the ‘activation_type’ are generally the precision that we want to use.
-
-The ‘quant_format’ has two values QDQ and QOperator.
-
-QuantFormat.QDQ (Quantize-Dequantize format)
-
-QuantFormat.QOperator
-
-Drawbacks
-
-For object detection models like YOLOv8, here are the five most significant drawbacks of quantization:
-
-Results / Outcomes
-
-YOLO-v8 nano
-
-YOLO-v8 nano Static Quantized
-
-YOLO-v8 nano Dynamic Quantized
-
-Our static quantization of YOLOv8 yielded promising results:
-
-Overall, static quantization demonstrated notable speed improvements for YOLOv8. However, careful evaluation of accuracy across various scenarios is crucial before deployment, ensuring the balance between efficiency and detection quality meets application needs.
-
-Full code
-
-You can visit my github repository for access of all the programs at :
-
-https://github.com/majipa007/Quantization-YOLOv8
+Let's go back a little in history

@@ -5,7 +5,7 @@ def calculate_file_hash(file_path):
     #calculates the MD5 hash of the file contents.
     hasher = hashlib.md5()
     with open(file_path, 'rb') as f:
-        buf = f.read();
+        buf = f.read()
         hasher.update(buf)
     return hasher.hexdigest()
 
@@ -25,12 +25,12 @@ def has_file_changed(file_path, hash_storage_path):
         return True
     return False
 
-file_path = "/opt/airflow/Scrapped_data/data.txt"
-hash_storage_path = "/opt/airflow/Scrapped_data/last_file_hash.txt"
-if has_file_changed(file_path, hash_storage_path):
-    print("changed")
-else:
-    print("not changed")
+# file_path = "/opt/airflow/Scrapped_data/data.txt"
+# hash_storage_path = "/opt/airflow/Scrapped_data/last_file_hash.txt"
+# if has_file_changed(file_path, hash_storage_path):
+#     print("changed")
+# else:
+#     print("not changed")
 
 
 
