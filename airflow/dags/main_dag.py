@@ -7,14 +7,14 @@ from datetime import datetime, timedelta
 import os
 # importing my functions
 from scraper.scrapper import extract_medium_text
-from scripts.detect_changes import has_file_changed
+from scripts.file_comparision import has_file_changed
 from scripts.vectorize_data import vectorize_and_save
 
 # setting file paths
 url = Variable.get("url")
 scrapped_data_path = "/opt/airflow/Scrapped_data/data.txt"
-vector_database_path = "../vector_db/vector_database.faiss"
-hash_storage_path  = "../Scrapped_data/last_file_hash.txt"
+vector_database_path = "/opt/airflow/vector_db/vector_database.faiss"
+hash_storage_path  = "/opt/airflow/Scrapped_data/last_file_hash.txt"
 
 # Default arguments for the DAG
 default_args = {

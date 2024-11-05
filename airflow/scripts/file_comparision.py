@@ -25,8 +25,8 @@ def has_file_changed(file_path, hash_storage_path):
         return True
     return False
 
-file_path = "../Scrapped_data/data.txt"
-hash_storage_path = "../Scrapped_data/last_file_hash.txt"
+file_path = "/opt/airflow/Scrapped_data/data.txt"
+hash_storage_path = "/opt/airflow/Scrapped_data/last_file_hash.txt"
 if has_file_changed(file_path, hash_storage_path):
     print("changed")
 else:
